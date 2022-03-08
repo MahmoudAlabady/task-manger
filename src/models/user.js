@@ -89,7 +89,7 @@ userSchema.statics.findByCredentials = async (email,password)=>{
 //jsonwebtoken-- methods for ver
 userSchema.methods.generateToken = async function(){
     const user = this;
-    const token = jwt.sign({_id:user._id.toString()} ,'node-user')
+    const token = jwt.sign({_id:user._id.toString()} ,process.env.JWT_SECRET)
     //console.log(token)
 
     user.tokens = user.tokens.concat({token});
