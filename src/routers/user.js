@@ -40,7 +40,7 @@ router.post('/users/login', async (req,res)=>{
         const token = await user.generateToken();
         res.status(200).send({user,token});
     } catch (error) {
-        res.status(400).send('e'+error)
+        res.status(400).send(error)
     }
 })
 
@@ -126,7 +126,30 @@ router.patch('/users/:id', auth,async (req,res)=>{
         res.status(200).send(user);
         
     } catch (error) {
-        res.status(400).send('error '+error);
+        res.status(400).send(error);
+    }
+} )
+
+router.patch('/profile', auth,async (req,res)=>{
+    try {
+        const userData =req.body;
+        const updates = Object.keys(userData);
+        const allowedUpdates = ["name","avatar"];
+        var isValid = updates.every((update)=> allowedUpdates.includes(update))
+
+        if(!isValid){
+            return res.status(400).send('can\'t update');
+        }
+
+        if (!req.user){
+            return res.status(404).send('Unable to find');
+        }
+        updates.forEach((update)=>req.user[update]=userData[update]);
+        await req.user.save();  
+        res.status(200).send(req.user);
+        
+    } catch (error) {
+        res.status(400).send(error);
     }
 } )
 
@@ -174,16 +197,17 @@ router.delete('/logoutAll',auth,async (req,res)=>{
 
 //avatar
 const uploads =multer({
-    
     limits:{
         fileSize:1000000
     },
     fileFilter(req,file,cb){
-        if(!file.originalname.match(/.*\.(gif|jpe?g|bmp|png)$/igm)){
-            cb(new Error('not suitable file'))
-
+        // if(!file.originalname.match(/.*\.(gif|jpe?g|bmp|png)$/igm)){
+        //     cb(new Error('not suitable file'))
+        // }
+        if(!file.originalname.match(/\.(jpg|jpeg|png|jfif)$/)){
+            cb(new Error('Sorry you must upload image'))
         }
-        cb(null, true)
+        cb(null,true)
 
     }
     

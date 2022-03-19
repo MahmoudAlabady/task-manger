@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema({
             }
         }
     },
-    password:{
+     password:{
         type:String,
         required:true,
         tirm:true,
@@ -38,7 +38,8 @@ const userSchema = new mongoose.Schema({
     },
     tokens:[
         
-   { token:{
+   { 
+       token:{
         type:String,
         required:true
     }
@@ -95,6 +96,19 @@ userSchema.methods.generateToken = async function(){
     user.tokens = user.tokens.concat({token});
     await user.save();
     return token;
+}
+//////////////////
+userSchema.methods.toJSON = function (){
+    // document
+    const user = this
+
+    // document --> object
+    const userObject = user.toObject()
+
+    delete userObject.password
+    delete userObject.tokens
+
+    return userObject
 }
 const User = mongoose.model('User',userSchema)
 
